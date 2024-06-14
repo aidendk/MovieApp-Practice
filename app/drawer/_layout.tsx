@@ -6,7 +6,7 @@ export default function Layout() {
   return (
     <Drawer
       screenOptions={{
-        headerShown: true,
+        headerShown: false,
         drawerHideStatusBarOnOpen: true,
         drawerActiveBackgroundColor: colorTokens.dark.blue.blue7,
         drawerActiveTintColor: '#fff',
