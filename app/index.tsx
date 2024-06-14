@@ -1,19 +1,9 @@
-import { Stack, Link } from 'expo-router';
+import { useRootNavigationState, Redirect } from 'expo-router';
 
-import { Button } from '~/components/Button';
-import { Container } from '~/components/Container';
-import { ScreenContent } from '~/components/ScreenContent';
+export default function InitalRouting() {
+  const rootNavigationState = useRootNavigationState();
 
-export default function Home() {
-  return (
-    <>
-      <Stack.Screen options={{ title: 'Home' }} />
-      <Container>
-        <ScreenContent path="app/index.tsx" title="Home" />
-        <Link href={{ pathname: '/details', params: { name: 'Dan' } }} asChild>
-          <Button title="Show Details" />
-        </Link>
-      </Container>
-    </>
-  );
+  if (!rootNavigationState?.key) return null;
+
+  return <Redirect href="/drawer/(home)" />;
 }
