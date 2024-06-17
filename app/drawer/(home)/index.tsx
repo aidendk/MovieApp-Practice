@@ -4,11 +4,13 @@ import { View, Text, ImageBackground } from 'react-native';
 import { Card, Input, ListItem, ScrollView, Spinner, YStack } from 'tamagui';
 
 import MovieCard from '~/components/MovieCard';
-import { getTrending } from '~/services/api';
+import { getSearchResults, getTrending } from '~/services/api';
 import { Container, Main, Subtitle, Title } from '~/tamagui.config';
+import useDebounce from '~/utils/useDebounce';
 
 const Home = () => {
   const [searchString, setSearchString] = useState('');
+  const debouncedString = useDebounce(searchString, 300);
 
   const trendingQuery = useQuery({
     queryKey: ['trending'],
@@ -16,8 +18,9 @@ const Home = () => {
   });
 
   const searchQuery = useQuery({
-    queryKey: ['search', searchString],
-    queryFn: getTrending,
+    queryKey: ['search', debouncedString],
+    queryFn: () => getSearchResults(debouncedString),
+    enabled: debouncedString.length > 0,
   });
 
   return (
@@ -44,7 +47,7 @@ const Home = () => {
         </Container>
       </ImageBackground>
       <Subtitle p={10} fontWeight="500">
-        Trending
+        {searchQuery.data?.results ? 'Search Results' : 'Trending'}
       </Subtitle>
       {(trendingQuery.isLoading || searchQuery.isLoading) && (
         <Spinner py={14} size="large" color="$blue10" />
@@ -54,8 +57,18 @@ const Home = () => {
         showsHorizontalScrollIndicator={false}
         py={40}
         contentContainerStyle={{ gap: 14, paddingLeft: 14 }}>
-        {trendingQuery.data?.results && (
-          <>{trendingQuery.data?.results.map((item) => <MovieCard key={item.id} movie={item} />)}</>
+        {searchQuery.data?.results ? (
+          <>{searchQuery.data?.results.map((item) => <MovieCard key={item.id} movie={item} />)}</>
+        ) : (
+          <>
+            {trendingQuery.data?.results && (
+              <>
+                {trendingQuery.data?.results.map((item) => (
+                  <MovieCard key={item.id} movie={item} />
+                ))}
+              </>
+            )}
+          </>
         )}
       </ScrollView>
     </Main>
